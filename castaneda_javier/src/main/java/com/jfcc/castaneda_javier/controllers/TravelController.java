@@ -1,17 +1,11 @@
 package com.jfcc.castaneda_javier.controllers;
 
 import com.jfcc.castaneda_javier.dtos.StatusCodeDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.BookingDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.BookingRequestDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.HotelDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.TicketBookingOkDTO;
-import com.jfcc.castaneda_javier.exceptions.date.WrongDateFormatException;
-import com.jfcc.castaneda_javier.exceptions.date.WrongDateIntervalException;
-import com.jfcc.castaneda_javier.exceptions.hotel.*;
-import com.jfcc.castaneda_javier.exceptions.people.WrongEmailFormatException;
+import com.jfcc.castaneda_javier.dtos.flight.FlightDTO;
+import com.jfcc.castaneda_javier.dtos.hotel.*;
+import com.jfcc.castaneda_javier.exceptions.ApiException;
 import com.jfcc.castaneda_javier.services.FlightService;
 import com.jfcc.castaneda_javier.services.HotelService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,44 +19,49 @@ public class TravelController {
 
 
     private HotelService hotelService;
-    //private FlightService flightService;
+    private FlightService flightService;
 
-    public TravelController(HotelService hotelService){
+    public TravelController(HotelService hotelService, FlightService flightService){
         this.hotelService = hotelService;
-        //this.flightService = flightService;
+        this.flightService = flightService;
     }
 
     @GetMapping("/hotels")
     public ResponseEntity<List<HotelDTO>> getHotels(@RequestParam(value = "dateFrom", required = false) String dateFrom,
                                                     @RequestParam(value = "dateTo", required = false) String dateTo,
                                                     @RequestParam(value = "destination", required = false) String destination)
-            throws DestinationNotFoundException, WrongDateFormatException, WrongDateIntervalException {
+            throws ApiException {
         List<HotelDTO> hotels = hotelService.getHotels(dateFrom,dateTo,destination);
         return new ResponseEntity<>(hotels, HttpStatus.OK);
     }
 
-    @PostMapping("booking")
-    public TicketBookingOkDTO makeBooking(@RequestBody BookingRequestDTO bookingRequest) throws NoHotelAvailableException,
-            NoHotelInDestinationAvailableException, WrongDateFormatException, WrongDateIntervalException, NoHotelInDateAvailableException, NoRoomTypeAvailableException, IOException, WrongEmailFormatException {
-        return hotelService.makeBooking(bookingRequest);
+    @PostMapping("/booking")
+    public TicketBookingOkDTO makeBooking(@RequestBody BookingSolitudeDTO bookingSolitude) throws IOException, ApiException {
+        return hotelService.makeBooking(bookingSolitude);
+    }
+
+    @GetMapping("/flights")
+    public ResponseEntity<List<FlightDTO>> getFlights(@RequestParam(value = "dateFrom", required = false) String dateFrom,
+                                                      @RequestParam(value = "dateTo", required = false) String dateTo,
+                                                      @RequestParam(value = "origin", required = false) String origin,
+                                                      @RequestParam(value = "destination", required = false) String destination)
+            throws ApiException {
+        List<FlightDTO> flights = flightService.getFlights(dateFrom, dateTo,origin,destination);
+        return new ResponseEntity<>(flights, HttpStatus.OK);
     }
 
 
-
-
-
-
-
-    @ExceptionHandler
-    public ResponseEntity<StatusCodeDTO> destinationNotFoundHandler(DestinationNotFoundException exception){
-        return new ResponseEntity<>(new StatusCodeDTO(400, "The destination "+exception.getMessage()+
-                " doesn't exist"),HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<StatusCodeDTO> showMessage(ApiException exception){
+        switch (exception.getCode()){
+            case 400:
+                return new ResponseEntity<>(new StatusCodeDTO(exception.getCode(),exception.getMessage()),HttpStatus.BAD_REQUEST);
+            case 404:
+                return new ResponseEntity<>(new StatusCodeDTO(exception.getCode(),exception.getMessage()),HttpStatus.NOT_FOUND);
+            default:
+                return new ResponseEntity<>(new StatusCodeDTO(exception.getCode(),exception.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @ExceptionHandler
-    public ResponseEntity<StatusCodeDTO> wrongDateFormatFoundHandler(WrongDateFormatException exception){
-        return new ResponseEntity<>(new StatusCodeDTO(400, "The date "+exception.getMessage()+
-                " is mispelled or doesn't have the format dd/mm/yyy"),HttpStatus.BAD_REQUEST);
-    }
 
 }

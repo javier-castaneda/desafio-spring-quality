@@ -1,0 +1,32 @@
+{
+  "userName" : "seba_gonzalez@unmail.com",
+  "booking" : {
+    "dateFrom" : "10/03/2021",
+    "dateTo" : "20/03/2021",
+    "destination" : "Buenos Aires",
+    "hotelCode" : "BH-0002",
+    "peopleAmount" : 2,
+    "roomType" : "Doble",
+    "people" : [
+      {
+        "dni" : "12345678",
+        "name" : "Pepito",
+        "lastName" : "Gomez",
+        "birthDate" : "10/11/1982",
+        "mail" : "pepitogomez@gmail.com"
+      },
+      {
+        "dni" : "13345678",
+        "name" : "Fulanito",
+        "lastName" : "Gomez",
+        "birthDate" : "10/11/1983",
+        "mail" : "fulanitogomez@gmail.com"
+      }
+    ],
+    "paymentMethod" : {
+      "type" : "CREDIT",
+      "number" : "1234-1234-1234-1234",
+      "dues" : 5
+    }
+  }
+}

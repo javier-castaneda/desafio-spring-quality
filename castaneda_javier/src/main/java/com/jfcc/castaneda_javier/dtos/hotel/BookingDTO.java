@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 public class BookingDTO {
-    private String userName;
     private String dateFrom;
     private String dateTo;
     private String destination;

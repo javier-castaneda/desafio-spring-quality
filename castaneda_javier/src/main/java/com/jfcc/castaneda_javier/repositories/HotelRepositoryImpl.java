@@ -1,7 +1,7 @@
 package com.jfcc.castaneda_javier.repositories;
 
 import com.jfcc.castaneda_javier.dtos.hotel.HotelDTO;
-import com.jfcc.castaneda_javier.exceptions.date.WrongDateFormatException;
+import com.jfcc.castaneda_javier.exceptions.ApiException;
 import com.jfcc.castaneda_javier.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -19,7 +19,7 @@ public class HotelRepositoryImpl implements HotelRepository {
     private String fileName;
 
 
-    public HotelRepositoryImpl(@Value("${hotels:Hoteles.csv}") String fileName) throws IOException, WrongDateFormatException {
+    public HotelRepositoryImpl(@Value("${hotels:Hoteles.csv}") String fileName) throws IOException, ApiException {
         this.fileName = fileName;
         hotelsList = loadDataBase(fileName);
     }
@@ -51,7 +51,7 @@ public class HotelRepositoryImpl implements HotelRepository {
         fw.close();
     }
 
-    private List<HotelDTO> loadDataBase(String fileName) throws IOException, WrongDateFormatException {
+    private List<HotelDTO> loadDataBase(String fileName) throws IOException, ApiException {
         List<HotelDTO> hotelDTOS = new ArrayList<>();
         int count = 0;
         String line = "";

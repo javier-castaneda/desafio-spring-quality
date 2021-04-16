@@ -1,0 +1,39 @@
+{
+  "userName" : "seba_gonzalez@unmail.com",
+  "booking" : {
+    "dateFrom" : "10/03/2021",
+    "dateTo" : "20/03/2021",
+    "destination" : "Bogotá",
+    "hotelCode" : "EC-0003",
+    "peopleAmount" : 3,
+    "roomType" : "Triple",
+    "people" : [
+      {
+        "dni" : "12345678",
+        "name" : "Pepito",
+        "lastName" : "Gomez",
+        "birthDate" : "10/11/1982",
+        "mail" : "pepitogomez@gmail.com"
+      },
+      {
+        "dni" : "13345678",
+        "name" : "Fulanito",
+        "lastName" : "Gomez",
+        "birthDate" : "10/11/1983",
+        "mail" : "fulanitogomez@gmail.com"
+      },
+      {
+        "dni": "13124235",
+        "name": "Sutanito",
+        "lastName": "Gomez",
+        "birthDate": "20/01/1983",
+        "mail": "sutanitogomez@gmail.com"
+      }
+    ],
+    "paymentMethod" : {
+      "type" : "DEBIT",
+      "number" : "1234-1234-1234-1234",
+      "dues" : 3
+    }
+  }
+}

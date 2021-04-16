@@ -2,14 +2,9 @@ package com.jfcc.castaneda_javier.services;
 
 import com.jfcc.castaneda_javier.dtos.StatusCodeDTO;
 import com.jfcc.castaneda_javier.dtos.general.PersonDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.BookingDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.BookingRequestDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.HotelDTO;
-import com.jfcc.castaneda_javier.dtos.hotel.TicketBookingOkDTO;
-import com.jfcc.castaneda_javier.exceptions.date.WrongDateFormatException;
-import com.jfcc.castaneda_javier.exceptions.date.WrongDateIntervalException;
-import com.jfcc.castaneda_javier.exceptions.hotel.*;
-import com.jfcc.castaneda_javier.exceptions.people.WrongEmailFormatException;
+import com.jfcc.castaneda_javier.dtos.hotel.*;
+import com.jfcc.castaneda_javier.exceptions.ApiException;
+import com.jfcc.castaneda_javier.exceptions.ExceptionMaker;
 import com.jfcc.castaneda_javier.repositories.HotelRepository;
 import com.jfcc.castaneda_javier.utils.DateUtils;
 import org.apache.commons.validator.EmailValidator;
@@ -17,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,25 +27,26 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public List<HotelDTO> getHotels(String dateFrom, String dateTo, String destination) throws DestinationNotFoundException, WrongDateFormatException, WrongDateIntervalException {
+    public List<HotelDTO> getHotels(String dateFrom, String dateTo, String destination) throws ApiException {
 
         List<HotelDTO> hotels = hotelRepository.getAllHotels();
-        //Parseo de fechas
+
 
         if (destination != null) {
             hotels = hotels.stream().filter(hotelDTO -> hotelDTO.getCity().equals(destination))
                     .collect(Collectors.toList());
             if (hotels.size() == 0) {
-                throw new DestinationNotFoundException(destination);
+                throw ExceptionMaker.getException("DEST1");
             }
         }
 
         if (dateFrom != null && dateTo != null) {
+            //Parseo de fechas
             LocalDate localDateFrom = DateUtils.makeLocalDate(dateFrom);
             LocalDate localDateTo = DateUtils.makeLocalDate(dateTo);
             //Verificación de validéz
             if (localDateTo.isBefore(localDateFrom)) {
-                throw new WrongDateIntervalException();
+                throw ExceptionMaker.getException("DATE2");
             }
             if (localDateTo != null && localDateTo != null) {
                 hotels = hotels.stream().filter(hotelDTO -> DateUtils.isBetween(localDateFrom, hotelDTO.getAvailableFrom(), hotelDTO.getAvailableTo())
@@ -61,31 +58,41 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public TicketBookingOkDTO makeBooking(BookingRequestDTO bookingRequest) throws NoHotelAvailableException, NoHotelInDestinationAvailableException, WrongDateFormatException, WrongDateIntervalException, NoHotelInDateAvailableException, NoRoomTypeAvailableException, WrongEmailFormatException, IOException {
+    public TicketBookingOkDTO makeBooking(BookingSolitudeDTO bookingSolitude) throws IOException, ApiException {
+        System.out.println(bookingSolitude);
 
+        BookingRequestDTO bookingRequest = bookingSolitude.getBooking();
 
         //Verificar datos:
         List<HotelDTO> hotels = hotelRepository.getAllHotels();
+
+        checkEmail(bookingSolitude.getUserName());
+
+        hotels =hotels.stream().filter(hotelDTO -> hotelDTO.getCode().equals(bookingRequest.getHotelCode())).collect(Collectors.toList());
+        if (hotels.size() < 1) {
+            throw ExceptionMaker.getException("NOHOT4");
+        }
+
         //filtrar disponibilidad
         hotels = hotels.stream().filter(hotelDTO -> hotelDTO.getBooked().equals(false)).collect(Collectors.toList());
         if (hotels.size() < 1) {
-            throw new NoHotelAvailableException();
+            throw ExceptionMaker.getException("NOHOT1");
         }
         //Verificar destino
-        hotels.stream().filter(hotelDTO -> hotelDTO.getCity().equals(bookingRequest.getDestination())).collect(Collectors.toList());
+        hotels = hotels.stream().filter(hotelDTO -> hotelDTO.getCity().equals(bookingRequest.getDestination())).collect(Collectors.toList());
         if (hotels.size() < 1) {
-            throw new NoHotelInDestinationAvailableException(bookingRequest.getDestination());
+            throw ExceptionMaker.getException("DEST1");
         }
         //verificar fechas
         LocalDate dateFrom = DateUtils.makeLocalDate(bookingRequest.getDateFrom());
         LocalDate dateTo = DateUtils.makeLocalDate(bookingRequest.getDateTo());
         if (dateTo.isBefore(dateFrom)) {
-            throw new WrongDateIntervalException();
+            throw ExceptionMaker.getException("DATE2");
         }
-        hotels.stream().filter(hotelDTO -> DateUtils.isBetween(dateFrom, hotelDTO.getAvailableFrom(), hotelDTO.getAvailableTo()) &&
-                DateUtils.isBetween(dateTo, hotelDTO.getAvailableFrom(), hotelDTO.getAvailableTo()));
+        hotels = hotels.stream().filter(hotelDTO -> DateUtils.isBetween(dateFrom, hotelDTO.getAvailableFrom(), hotelDTO.getAvailableTo()) &&
+                DateUtils.isBetween(dateTo, hotelDTO.getAvailableFrom(), hotelDTO.getAvailableTo())).collect(Collectors.toList());
         if (hotels.size() < 1) {
-            throw new NoHotelInDateAvailableException();
+            throw ExceptionMaker.getException("NOHOT2");
         }
         //verificar tipo de habitación y cantidad de personas
 
@@ -93,42 +100,38 @@ public class HotelServiceImpl implements HotelService {
         switch (bookingRequest.getRoomType()) {
             case "Single":
                 if (bookingRequest.getPeopleAmount() > 1 || bookingRequest.getPeople().size() > 1) {
-                    //throw WrongAmountExeption
+                    throw ExceptionMaker.getException("PPL1");
                 }
                 break;
 
             case "Doble":
                 if (bookingRequest.getPeopleAmount() > 2 || bookingRequest.getPeople().size() > 2) {
-                    //throw WrongAmountExeption
+                    throw ExceptionMaker.getException("PPL1");
                 }
                 break;
 
             case "Triple":
                 if (bookingRequest.getPeopleAmount() > 3 || bookingRequest.getPeople().size() > 3) {
-                    //throw WrongAmountExeption
+                    throw ExceptionMaker.getException("PPL1");
                 }
                 break;
 
             case "Múltiple":
                 if (bookingRequest.getPeopleAmount() > 10 || bookingRequest.getPeople().size() > 10 ||
                         bookingRequest.getPeopleAmount() < 4 || bookingRequest.getPeople().size() < 4) {
-                    //throw WrongAmountExeption
+                    throw ExceptionMaker.getException("PPL1");
                 }
                 break;
 
             default:
-                //throw BadRoomTypeException
+                throw ExceptionMaker.getException("ROOM1");
         }
 
-        hotels.stream().filter(hotelDTO -> hotelDTO.getRoomType().equals(bookingRequest.getRoomType())).collect(Collectors.toList());
+        hotels = hotels.stream().filter(hotelDTO -> hotelDTO.getRoomType().equals(bookingRequest.getRoomType())).collect(Collectors.toList());
         if (hotels.size() < 1) {
-            throw new NoRoomTypeAvailableException();
+            throw ExceptionMaker.getException("ROOM1");
         }
 
-        hotels.stream().filter(hotelDTO -> hotelDTO.getCode().equals(bookingRequest.getHotelCode())).collect(Collectors.toList());
-        if (hotels.size() != 1) {
-            throw new NoRoomTypeAvailableException();
-        }
 
         //verificar datos de personas
         for (PersonDTO person : bookingRequest.getPeople()) {
@@ -137,18 +140,12 @@ public class HotelServiceImpl implements HotelService {
 
         HotelDTO actual = hotels.get(0);
 
-        //crear el Ticket
+
         TicketBookingOkDTO ticket = new TicketBookingOkDTO();
-        BookingDTO bookingForTicket = new BookingDTO();
-        bookingForTicket.setDateFrom(bookingRequest.getDateFrom());
-        bookingForTicket.setDateTo(bookingRequest.getDateTo());
-        bookingForTicket.setDestination(bookingRequest.getDestination());
-        bookingForTicket.setHotelCode(bookingRequest.getHotelCode());
-        bookingForTicket.setPeopleAmount(bookingRequest.getPeopleAmount());
-        bookingForTicket.setRoomType(bookingRequest.getRoomType());
-        bookingForTicket.setPeople(bookingRequest.getPeople());
-        ticket.setUserName(bookingRequest.getUserName());
-        ticket.setAmount(actual.getPriceByNight());
+
+        ticket.setUserName(bookingSolitude.getUserName());
+        int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo)-1;
+        ticket.setAmount(actual.getPriceByNight()*numberOfDays);
         boolean payingDebit = false;
         //verificar el interés
 
@@ -167,25 +164,37 @@ public class HotelServiceImpl implements HotelService {
                 break;
         }
 
-        ticket.setBooking(bookingForTicket);
+        ticket.setBooking(toBookingDTO(bookingRequest));
 
         //cambiar estado en lista
         //actualizar repositorio
         hotelRepository.changeState(bookingRequest.getHotelCode());
 
 
-        ticket.setStatusCode(new StatusCodeDTO(200, "El proceso terminó satisfactoriamente. " +
-                (payingDebit ? "Se realiza el pago en " + bookingRequest.getPaymentMethod().getDues() + " cuotas" : "")));
+        ticket.setStatusCode(new StatusCodeDTO(200, "El proceso terminó satisfactoriamente." +
+                (payingDebit ? " Se realiza el pago en " + bookingRequest.getPaymentMethod().getDues() + " cuotas" : "")));
 
         //retornar el ticket
         return ticket;
     }
 
 
-    private void checkEmail(String email) throws WrongEmailFormatException {
+    private void checkEmail(String email) throws ApiException {
         EmailValidator validator = EmailValidator.getInstance();
         if (!validator.isValid(email)) {
-            throw new WrongEmailFormatException();
+            throw ExceptionMaker.getException("MAIL1");
         }
+    }
+
+    private BookingDTO toBookingDTO(BookingRequestDTO bookingRequest){
+        BookingDTO bookingForTicket = new BookingDTO();
+        bookingForTicket.setDateFrom(bookingRequest.getDateFrom());
+        bookingForTicket.setDateTo(bookingRequest.getDateTo());
+        bookingForTicket.setDestination(bookingRequest.getDestination());
+        bookingForTicket.setHotelCode(bookingRequest.getHotelCode());
+        bookingForTicket.setPeopleAmount(bookingRequest.getPeopleAmount());
+        bookingForTicket.setRoomType(bookingRequest.getRoomType());
+        bookingForTicket.setPeople(bookingRequest.getPeople());
+        return bookingForTicket;
     }
 }
