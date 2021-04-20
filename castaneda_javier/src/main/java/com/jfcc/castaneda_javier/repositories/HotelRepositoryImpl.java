@@ -2,7 +2,6 @@ package com.jfcc.castaneda_javier.repositories;
 
 import com.jfcc.castaneda_javier.dtos.hotel.HotelDTO;
 import com.jfcc.castaneda_javier.exceptions.ApiException;
-import com.jfcc.castaneda_javier.exceptions.ExceptionMaker;
 import com.jfcc.castaneda_javier.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -41,13 +40,13 @@ public class HotelRepositoryImpl implements HotelRepository {
     }
 
     private void updateDatabase() throws IOException {
-        String productStrings = "Código Hotel,Nombre,Lugar/Ciudad,Tipo de Habitación,Precio por noche,Disponible Desde,Disponible hasta,Reservado" + System.lineSeparator();
+        String hotelStrings = "Código Hotel,Nombre,Lugar/Ciudad,Tipo de Habitación,Precio por noche,Disponible Desde,Disponible hasta,Reservado" + System.lineSeparator();
         for (HotelDTO hotel : hotelsList) {
-            productStrings += toLine(hotel);
+            hotelStrings += toLine(hotel);
         }
 
         FileWriter fw = new FileWriter(getClass().getClassLoader().getResource(fileName).getFile());
-        fw.write(productStrings);
+        fw.write(hotelStrings);
 
         fw.close();
     }

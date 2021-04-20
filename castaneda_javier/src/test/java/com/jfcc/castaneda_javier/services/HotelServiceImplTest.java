@@ -19,19 +19,21 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+//Tests de la clase HotelServiceImpl
 class HotelServiceImplTest {
 
     private HotelRepository hotelRepository;
 
     private HotelService hotelService;
 
-
+    //Se mockea el repositorio y se instancia el servicio
     @BeforeEach
     void setUp() {
         hotelRepository = mock(HotelRepositoryImpl.class);
         hotelService = new HotelServiceImpl(hotelRepository);
     }
 
+    //Test para verificar que se carguen los elementos del repositorio
     @Test
     void shouldGetAllHotels() throws ApiException {
 
@@ -44,6 +46,7 @@ class HotelServiceImplTest {
 
     }
 
+    //Test para verificar que se carguen los elementos del repositorio y luego se filtren por destino
     @Test
     void shouldGetFilteredHotels() throws ApiException {
 
@@ -56,6 +59,7 @@ class HotelServiceImplTest {
 
     }
 
+    //Test para verificar que se carguen los elementos del repositorio y luego se filtren por fechas
     @Test
     void shouldGetDateFilteredHotels() throws ApiException {
 
@@ -69,6 +73,9 @@ class HotelServiceImplTest {
 
     }
 
+    //Test que hace una reserva en un hotel
+    //No se modifica el repositorio ni los archivos
+    //Se usan como entrada y salida un archivo json para cada acción respectivamente
     @Test
     void shouldMakeBooking() throws IOException, ApiException {
 
@@ -78,11 +85,12 @@ class HotelServiceImplTest {
         BookingSolitudeDTO booking = loadBookingRequest("bookingRequest.json");
         TicketBookingOkDTO result = loadBookingTicket("bookingResult.json");
 
-        //verify(hotelRepository,atLeastOnce()).getAllHotels();
-        //verify(hotelRepository,atLeastOnce()).changeState(anyString());
         assertThat(hotelService.makeBooking(booking)).isEqualTo(result);
     }
 
+    //Test que hace una reserva en un hotel con tarjeta débito en otro tipo de habitación
+    //No se modifica el repositorio ni los archivos
+    //Se usan como entrada y salida un archivo json para cada acción respectivamente
     @Test
     void shouldMakeOtherBooking() throws IOException, ApiException {
 
@@ -92,8 +100,6 @@ class HotelServiceImplTest {
         BookingSolitudeDTO booking = loadBookingRequest("bookingRequestTripleDebit.json");
         TicketBookingOkDTO result = loadBookingTicket("bookingResultTripleDebit.json");
 
-        //verify(hotelRepository,atLeastOnce()).getAllHotels();
-        //verify(hotelRepository,atLeastOnce()).changeState(anyString());
         assertThat(hotelService.makeBooking(booking)).isEqualTo(result);
     }
 

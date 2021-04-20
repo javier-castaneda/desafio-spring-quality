@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class FlightRepositoryImpl implements FlightRepository{
+public class FlightRepositoryImpl implements FlightRepository {
 
     private String fileName;
     private List<FlightDTO> flightList;
@@ -23,7 +23,6 @@ public class FlightRepositoryImpl implements FlightRepository{
         this.fileName = fileName;
         flightList = loadDataBase(fileName);
     }
-
 
 
     @Override
@@ -45,7 +44,7 @@ public class FlightRepositoryImpl implements FlightRepository{
                 flight.setOrigin(dbHotel[1]);
                 flight.setDestination(dbHotel[2]);
                 flight.setSeatType(dbHotel[3]);
-                flight.setPriceByPerson(Long.parseLong(dbHotel[4].replace("$", "").replace(".","")));
+                flight.setPriceByPerson(Long.parseLong(dbHotel[4].replace("$", "").replace(".", "")));
                 flight.setDateFrom(DateUtils.makeLocalDate(dbHotel[5]));
                 flight.setDateTo(DateUtils.makeLocalDate(dbHotel[6]));
                 flightDTOS.add(flight);

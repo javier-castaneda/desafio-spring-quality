@@ -12,15 +12,18 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+//Tests de la clase FLightRepositoryImpl
 class FlightRepositoryImplTest {
 
     private FlightRepository flightRepository;
 
+    //Se usa un archivo de Vuelos diferente al que se usa en "producción"
     @BeforeEach
     void setUp() throws IOException, ApiException {
         flightRepository = new FlightRepositoryImpl("VuelosTest.csv");
     }
 
+    //Se prueba que se carguen los datos igual a los que se encuentran hardcoded en el método getList
     @Test
     void getAllFlights() {
 

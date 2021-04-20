@@ -71,7 +71,6 @@ public class FlightServiceImpl implements FlightService {
 
         //Verificar Código de vuelo
         flights = flights.stream().filter(flightDTO -> flightDTO.getFlightNumber().equals(reservationRequest.getFlightNumber())).collect(Collectors.toList());
-        System.out.println("Código de vuelo de reserva: " + reservationRequest.getFlightNumber());
         if (flights.size() < 1) {
             throw ExceptionMaker.getException("NOFLY1");
         }
@@ -124,12 +123,11 @@ public class FlightServiceImpl implements FlightService {
         ticket.setUserName(solitude.getUserName());
         ticket.setAmount(actual.getPriceByPerson() * reservationRequest.getSeats());
         boolean payingDebit = false;
-        //verificar el interés
 
+        //verificar el interés
         //verificar datos de pago
         switch (reservationRequest.getPaymentMethod().getType()) {
             case "CREDIT":
-                //Preguntar sobre el intervalo de interés
                 ticket.setInterest(((reservationRequest.getPaymentMethod().getDues() / 3) + 1) * 5);
                 ticket.setTotal(ticket.getAmount() * (1 + (ticket.getInterest() / 100)));
                 break;
@@ -142,8 +140,6 @@ public class FlightServiceImpl implements FlightService {
         }
 
         ticket.setFlightReservation(toReservationDTO(reservationRequest));
-
-        //actualizar repositorio
 
         ticket.setStatusCode(new StatusCodeDTO(200, "El proceso terminó satisfactoriamente." +
                 (payingDebit ? " Se realiza el pago en " + reservationRequest.getPaymentMethod().getDues() + " cuotas" : "")));

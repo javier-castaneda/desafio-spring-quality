@@ -22,17 +22,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+//Tests de la clase FlightServiceImpl
 class FlightServiceImplTest {
 
     private FlightRepository flightRepository;
     private FlightService flightService;
 
+    //Se mockea el repositorio y se instancia el servicio
     @BeforeEach
     void setUp() {
         flightRepository = mock(FlightRepositoryImpl.class);
         flightService = new FlightServiceImpl(flightRepository);
     }
 
+    //Test para verificar que se carguen los elementos del repositorio
     @Test
     void ShouldGetFlights() throws ApiException {
         when(flightRepository.getAllFlights()).thenReturn(getList());
@@ -42,6 +45,7 @@ class FlightServiceImplTest {
         assertThat(result).isEqualTo(getList());
     }
 
+    //Test para verificar que se carguen los elementos del repositorio y luego se filtren por destino y origen
     @Test
     void shouldGetFilteredFlights() throws ApiException {
         when(flightRepository.getAllFlights()).thenReturn(getList());
@@ -54,6 +58,7 @@ class FlightServiceImplTest {
                 flightDTO.getDestination().equals("Buenos Aires")).collect(Collectors.toList()));
     }
 
+    //Test para verificar que se carguen los elementos del repositorio y luego se filtren por fecha de ida y vuelta
     @Test
     void shouldGetFilteredByDate() throws ApiException {
         when(flightRepository.getAllFlights()).thenReturn(getList());
@@ -67,6 +72,9 @@ class FlightServiceImplTest {
                 .collect(Collectors.toList()));
     }
 
+    //Test que hace una reserva de un vuelo
+    //No se modifica el repositorio ni los archivos
+    //Se usan como entrada y salida un archivo json para cada acción respectivamente
     @Test
     void makeReservation() throws ApiException {
         when(flightRepository.getAllFlights()).thenReturn(getList());
@@ -78,6 +86,9 @@ class FlightServiceImplTest {
 
     }
 
+    //Test que hace una reserva de un vuelo con tarjeta débito
+    //No se modifica el repositorio ni los archivos
+    //Se usan como entrada y salida un archivo json para cada acción respectivamente
     @Test
     void makeReservationCredit() throws ApiException {
         when(flightRepository.getAllFlights()).thenReturn(getList());

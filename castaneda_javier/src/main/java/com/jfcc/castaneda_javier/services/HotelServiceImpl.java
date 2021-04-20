@@ -69,7 +69,7 @@ public class HotelServiceImpl implements HotelService {
 
         VerificationUtils.checkEmail(bookingSolitude.getUserName());
 
-        hotels =hotels.stream().filter(hotelDTO -> hotelDTO.getCode().equals(bookingRequest.getHotelCode())).collect(Collectors.toList());
+        hotels = hotels.stream().filter(hotelDTO -> hotelDTO.getCode().equals(bookingRequest.getHotelCode())).collect(Collectors.toList());
         if (hotels.size() < 1) {
             throw ExceptionMaker.getException("NOHOT4");
         }
@@ -99,6 +99,7 @@ public class HotelServiceImpl implements HotelService {
 
 
         switch (bookingRequest.getRoomType()) {
+            //Habitación individual: solo una persona
             case "Single":
                 if (bookingRequest.getPeopleAmount() > 1 || bookingRequest.getPeople().size() > 1) {
                     throw ExceptionMaker.getException("PPL1");
@@ -106,18 +107,21 @@ public class HotelServiceImpl implements HotelService {
                 break;
 
             case "Doble":
+                //Habitación doble: dos o una persona
                 if (bookingRequest.getPeopleAmount() > 2 || bookingRequest.getPeople().size() > 2) {
                     throw ExceptionMaker.getException("PPL1");
                 }
                 break;
 
             case "Triple":
+                //Habitación triple: tres o menos personas
                 if (bookingRequest.getPeopleAmount() > 3 || bookingRequest.getPeople().size() > 3) {
                     throw ExceptionMaker.getException("PPL1");
                 }
                 break;
 
             case "Múltiple":
+                //Habitación Múltiple: 4 a 10 personas
                 if (bookingRequest.getPeopleAmount() > 10 || bookingRequest.getPeople().size() > 10 ||
                         bookingRequest.getPeopleAmount() < 4 || bookingRequest.getPeople().size() < 4) {
                     throw ExceptionMaker.getException("PPL1");
@@ -125,6 +129,7 @@ public class HotelServiceImpl implements HotelService {
                 break;
 
             default:
+                //No existen otro tipo de habitaciones
                 throw ExceptionMaker.getException("ROOM1");
         }
 
@@ -145,11 +150,11 @@ public class HotelServiceImpl implements HotelService {
         TicketBookingOkDTO ticket = new TicketBookingOkDTO();
 
         ticket.setUserName(bookingSolitude.getUserName());
-        int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo)-1;
-        ticket.setAmount(actual.getPriceByNight()*numberOfDays);
+        int numberOfDays = (int) ChronoUnit.DAYS.between(dateFrom, dateTo) - 1;
+        ticket.setAmount(actual.getPriceByNight() * numberOfDays);
         boolean payingDebit = false;
-        //verificar el interés
 
+        //verificar el interés
         //verificar datos de pago
         switch (bookingRequest.getPaymentMethod().getType()) {
             case "CREDIT":
@@ -180,9 +185,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
 
-
-
-    private BookingDTO toBookingDTO(BookingRequestDTO bookingRequest){
+    private BookingDTO toBookingDTO(BookingRequestDTO bookingRequest) {
         BookingDTO bookingForTicket = new BookingDTO();
         bookingForTicket.setDateFrom(bookingRequest.getDateFrom());
         bookingForTicket.setDateTo(bookingRequest.getDateTo());
