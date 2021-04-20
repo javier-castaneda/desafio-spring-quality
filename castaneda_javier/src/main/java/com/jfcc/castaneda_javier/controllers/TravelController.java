@@ -2,6 +2,8 @@ package com.jfcc.castaneda_javier.controllers;
 
 import com.jfcc.castaneda_javier.dtos.StatusCodeDTO;
 import com.jfcc.castaneda_javier.dtos.flight.FlightDTO;
+import com.jfcc.castaneda_javier.dtos.flight.ReservationSolitudeDTO;
+import com.jfcc.castaneda_javier.dtos.flight.TicketReservationOkDTO;
 import com.jfcc.castaneda_javier.dtos.hotel.*;
 import com.jfcc.castaneda_javier.exceptions.ApiException;
 import com.jfcc.castaneda_javier.services.FlightService;
@@ -48,6 +50,11 @@ public class TravelController {
             throws ApiException {
         List<FlightDTO> flights = flightService.getFlights(dateFrom, dateTo,origin,destination);
         return new ResponseEntity<>(flights, HttpStatus.OK);
+    }
+
+    @PostMapping("/flight-reservation")
+    public TicketReservationOkDTO makeReservation(@RequestBody ReservationSolitudeDTO reservationSolitude) throws ApiException {
+        return flightService.makeReservation(reservationSolitude);
     }
 
 

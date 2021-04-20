@@ -10,8 +10,8 @@ public class DateUtils {
     public static LocalDate makeLocalDate(String date) throws  ApiException {
         String[] day = date.split("/");
 
-        if (day.length != 3 || day[0].length() > 2 || day[1].length() > 2 || day[2].length() > 4) {
-            System.out.println("Longitudes: "+day[0].length()+" "+day[1].length()+" "+day[2].length());
+        if (day.length != 3 || day[0].length() != 2 || day[1].length() != 2 || day[2].length() > 4) {
+            //System.out.println("Longitudes: "+day[0].length()+" "+day[1].length()+" "+day[2].length());
             throw ExceptionMaker.getException("DATE1");
         }
 
@@ -28,7 +28,15 @@ public class DateUtils {
     }
 
     public static String toFormat(LocalDate date) {
-        return date.getDayOfMonth() + "/" + date.getMonthValue() + "/" + date.getYear();
+        String day ="";
+        String month = "";
+        if (date.getDayOfMonth()<10){
+            day+="0";
+        }
+        if (date.getMonthValue()<10){
+            month+="0";
+        }
+        return day + date.getDayOfMonth() + "/" + month + date.getMonthValue() + "/" + date.getYear();
     }
 
     public static boolean isBetween(LocalDate comparable, LocalDate start, LocalDate end) {

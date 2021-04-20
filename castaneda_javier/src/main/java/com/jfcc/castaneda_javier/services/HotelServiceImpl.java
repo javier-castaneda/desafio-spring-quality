@@ -7,7 +7,7 @@ import com.jfcc.castaneda_javier.exceptions.ApiException;
 import com.jfcc.castaneda_javier.exceptions.ExceptionMaker;
 import com.jfcc.castaneda_javier.repositories.HotelRepository;
 import com.jfcc.castaneda_javier.utils.DateUtils;
-import org.apache.commons.validator.EmailValidator;
+import com.jfcc.castaneda_javier.utils.VerificationUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,6 +30,8 @@ public class HotelServiceImpl implements HotelService {
     public List<HotelDTO> getHotels(String dateFrom, String dateTo, String destination) throws ApiException {
 
         List<HotelDTO> hotels = hotelRepository.getAllHotels();
+
+        hotels = hotels.stream().filter(hotelDTO -> hotelDTO.getBooked().equals(false)).collect(Collectors.toList());
 
 
         if (destination != null) {
@@ -59,14 +61,13 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public TicketBookingOkDTO makeBooking(BookingSolitudeDTO bookingSolitude) throws IOException, ApiException {
-        System.out.println(bookingSolitude);
 
         BookingRequestDTO bookingRequest = bookingSolitude.getBooking();
 
         //Verificar datos:
         List<HotelDTO> hotels = hotelRepository.getAllHotels();
 
-        checkEmail(bookingSolitude.getUserName());
+        VerificationUtils.checkEmail(bookingSolitude.getUserName());
 
         hotels =hotels.stream().filter(hotelDTO -> hotelDTO.getCode().equals(bookingRequest.getHotelCode())).collect(Collectors.toList());
         if (hotels.size() < 1) {
@@ -135,7 +136,7 @@ public class HotelServiceImpl implements HotelService {
 
         //verificar datos de personas
         for (PersonDTO person : bookingRequest.getPeople()) {
-            checkEmail(person.getMail());
+            VerificationUtils.checkEmail(person.getMail());
         }
 
         HotelDTO actual = hotels.get(0);
@@ -179,12 +180,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
 
-    private void checkEmail(String email) throws ApiException {
-        EmailValidator validator = EmailValidator.getInstance();
-        if (!validator.isValid(email)) {
-            throw ExceptionMaker.getException("MAIL1");
-        }
-    }
+
 
     private BookingDTO toBookingDTO(BookingRequestDTO bookingRequest){
         BookingDTO bookingForTicket = new BookingDTO();

@@ -1,0 +1,33 @@
+{
+  "userName" : "seba_gonzalez@unmail.com",
+  "flightReservation" : {
+    "dateFrom" : "15/02/2021",
+    "dateTo" : "28/02/2021",
+    "origin" : "Bogotá",
+    "destination" : "Buenos Aires",
+    "flightNumber" : "BOBA-6567",
+    "seats" : 2,
+    "seatType" : "Business",
+    "people" : [
+      {
+        "dni" : "12345678",
+        "name" : "Pepito",
+        "lastName" : "Gomez",
+        "birthDate" : "10/11/1982",
+        "mail" : "pepitogomez@gmail.com"
+      },
+      {
+        "dni" : "13345678",
+        "name" : "Fulanito",
+        "lastName" : "Gomez",
+        "birthDate" : "10/11/1983",
+        "mail" : "fulanitogomez@gmail.com"
+      }
+    ],
+    "paymentMethod" : {
+      "type" : "DEBIT",
+      "number" : "1234-1234-1234-1234",
+      "dues" : 2
+    }
+  }
+}

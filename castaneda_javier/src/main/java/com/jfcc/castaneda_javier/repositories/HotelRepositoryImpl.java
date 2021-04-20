@@ -2,6 +2,7 @@ package com.jfcc.castaneda_javier.repositories;
 
 import com.jfcc.castaneda_javier.dtos.hotel.HotelDTO;
 import com.jfcc.castaneda_javier.exceptions.ApiException;
+import com.jfcc.castaneda_javier.exceptions.ExceptionMaker;
 import com.jfcc.castaneda_javier.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -30,10 +31,10 @@ public class HotelRepositoryImpl implements HotelRepository {
     }
 
     @Override
-    public void changeState(String hotelCode) throws IOException {
-        for (HotelDTO hotel:hotelsList) {
-            if(hotel.getCode().equals(hotelCode)){
-                hotel.setBooked(true);
+    public void changeState(String hotelCode) throws IOException, ApiException {
+        for (int i = 0; i < hotelsList.size(); i++) {
+            if (hotelsList.get(i).getCode().equals(hotelCode)) {
+                hotelsList.get(i).setBooked(true);
             }
         }
         updateDatabase();
